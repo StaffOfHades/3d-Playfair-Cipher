@@ -13,6 +13,7 @@ def cleanPhrase(phrase):
 			i = i + 1 
 		if not repeated:
 			word.append(c)
+
 	return word
 
 # Generate & returns the base or default key
@@ -24,6 +25,7 @@ def generateDefaultKey():
 	for i in range(26):
 		defaultKey.append(chr(ord('A') + i))
 	defaultKey += list("!“#$%&‘()*+,-./:;<=>?@[\]^_|")
+
 	return defaultKey
 
 # Generates & return the specific key
@@ -84,31 +86,49 @@ def generateTrigraphFromPlainText(plainText):
 	trigraphs[:] = ''
 	# For use with the plainText as index.
 	p = 0
-	# Depending on the position of the character in the trigraph,
-	# different consideration need to be taken, but in general
-	# we look to add the plainText in order.
-	for i in range(size):
-		for j in range(3):
-			# Number of special characters ('X', 'Z') to insert;
-			# everytime we begin the loop we reset it, and
-			# always add the first character to the trigraph.
-			insert = 0
-			# If the character is the second or third position,
-			# make sure no letters are repeated or index is out of bounds.
-			if j > 0:
-				if p >= len(plainText) or trigraphs[i][j - 1] == plainText[p]:
-					insert = j
-			# If no additional characters are needed, simply add the next
-			# character to the current trigraph.
-			if insert == 0:
-				trigraphs[i][j] = plainText[p]
-				p = p + 1
-			# Otherwise, depeding on the character padding needed,
-			# add the appropiate one.s
-			if insert == 1:
-				trigraphs[i][j] = 'X'
-			if insert == 2:
-				trigraphs[i][j] = 'Z'
+	# For use with trigraphs as indices.
+	i = j = 0
+	# Keep breaking the plain text into trigraphs
+	# as long as we have characteres remaining
+	# or the trigraphs aren't filled completely.
+	while p < len(plainText) or i < len(trigraphs):
+		# If by adding extra XZ we oversaturate our trigraphs,
+		# add a new trigraph array to the matrix.
+		if i >= len(trigraphs):
+			trigraph = numpy.chararray(3, unicode = True)
+			trigraph[:] = ''	
+			trigraphs = numpy.vstack((trigraphs, trigraph))
+		# Number of special characters ('X', 'Z') to insert;
+		# everytime we begin the loop we reset it, and
+		# always add the first character to the trigraph.
+		insert = 0
+		# If the character is the second or third position,
+		# make sure no letters are repeated or index is out of bounds.
+		if j == 1:
+			if p >= len(plainText) or trigraphs[i][j - 1] == plainText[p]:
+				insert = 1
+		if j == 2:
+			if p >= len(plainText):
+				insert = 2
+			elif trigraphs[i][j - 1] == plainText[p]:
+				insert = 1
+		# If no additional characters are needed, simply add the next
+		# character to the current trigraph.
+		if insert == 0:
+			trigraphs[i][j] = plainText[p]
+			p = p + 1
+		# Otherwise, depeding on the character padding needed,
+		# add the appropiate one.s
+		if insert == 1:
+			trigraphs[i][j] = 'X'
+		if insert == 2:
+			trigraphs[i][j] = 'Z'
+		# Iterate over the trigraphs.
+		j = j + 1
+		if j >= 3:
+			j = 0
+			i = i + 1
+
 	return trigraphs
 
 # A plain cipher trigraph only needs to divide the text
@@ -129,6 +149,7 @@ def generateTrigraphFromCipherText(cipherText):
 		for j in range(3):
 			trigraphs[i][j] = cipherText[p]
 			p = p + 1
+
 	return trigraphs
 
 # Obtain the coordinates (index) of a character
@@ -143,12 +164,13 @@ def indexOf(key, char):
 			break
 		# Loop over the matrix.
 		k = k + 1
-		if k == 4:
+		if k >= 4:
 			j = j + 1
 			k = 0
-			if j == 4:
+			if j >= 4:
 				i = i + 1
 				j = 0
+
 	return {'i': i, 'j': j, 'k': k}
 
 # Given a 3x3x3 matrix, add all the characters
@@ -159,6 +181,7 @@ def toString(array):
 		for b in a:
 			for c in b:
 				string += c
+
 	return string
 
 # Given a plain text and a keyphrase,
@@ -188,6 +211,7 @@ def encrypt(plainText, keyPhrase):
 				trigraphs[i][j] = key[indices[0]['i']][indices[1]['j']][indices[2]['k']]
 			if j == 2:
 				trigraphs[i][j] = key[indices[1]['i']][indices[2]['j']][indices[0]['k']]
+
 	# Return the cipherText in trigraph format as a string.
 	return toString(trigraphs)
 
@@ -218,12 +242,13 @@ def decrypt(cipherText, keyPhrase):
 				trigraphs[i][j] = key[indices[2]['i']][indices[1]['j']][indices[0]['k']]
 			if j == 2:
 				trigraphs[i][j] = key[indices[0]['i']][indices[2]['j']][indices[1]['k']]
+				
 	# Return the cipherText in trigraph format as a string.
 	return toString(trigraphs)
 
 # Key phrase and plain text to test the algorith with.
-keyPhrase = "Rene1214@$"
-plainText = "MAIL=MAU.GRACI@GMAIL.COM&MESSAGE=I%20NEED%20A%20NEW%20LIFE"
+keyPhrase = "FRIENDS4V@TJ_201.C"
+plainText = "M.TECH@THESIS"
 
 # Obtain the matching key and print it.
 keyWord = cleanPhrase(keyPhrase)

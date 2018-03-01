@@ -88,16 +88,16 @@ def generateTrigraphFromPlainText(plainText):
 	# different consideration need to be taken, but in general
 	# we look to add the plainText in order.
 	for i in range(size):
-		# Number of special characters ('X', 'Z') to insert;
-		# everytime we begin the loop we reset it, and
-		# always add the character to the trigraph.
-		insert = 0
 		for j in range(3):
+			# Number of special characters ('X', 'Z') to insert;
+			# everytime we begin the loop we reset it, and
+			# always add the first character to the trigraph.
+			insert = 0
 			# If the character is the second or third position,
 			# make sure no letters are repeated or index is out of bounds.
 			if j > 0:
 				if p >= len(plainText) or trigraphs[i][j - 1] == plainText[p]:
-					insert = insert + 1
+					insert = j
 			# If no additional characters are needed, simply add the next
 			# character to the current trigraph.
 			if insert == 0:
@@ -114,7 +114,7 @@ def generateTrigraphFromPlainText(plainText):
 # A plain cipher trigraph only needs to divide the text
 # into sets of three characters.
 def generateTrigraphFromCipherText(cipherText):
-	# The number of trigraphs is always the size of the plain text
+	# The number of trigraphs is always the size of the cipher text
 	# divided by 3 rounded up.
 	size = math.ceil(len(cipherText) / 3)
 	# Create a sizex3 matrix.
@@ -222,8 +222,8 @@ def decrypt(cipherText, keyPhrase):
 	return toString(trigraphs)
 
 # Key phrase and plain text to test the algorith with.
-keyPhrase = "FRIENDS4V@TJ_201.C"
-plainText = "M.TECH@THESIS"
+keyPhrase = "Rene1214@$"
+plainText = "MAIL=MAU.GRACI@GMAIL.COM&MESSAGE=I%20NEED%20A%20NEW%20LIFE"
 
 # Obtain the matching key and print it.
 keyWord = cleanPhrase(keyPhrase)

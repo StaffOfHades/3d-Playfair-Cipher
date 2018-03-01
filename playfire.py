@@ -205,7 +205,9 @@ def encrypt(plainText, keyPhrase):
 		indices.append(indexOf(key, trigraphs[i][1]))
 		indices.append(indexOf(key, trigraphs[i][2]))
 		# Encryption proccess was found through trial and error
-		# based on the original algorithm to match it.
+		# based on the original algorithm to match it;
+		# this implementation has the j and k inverted when compared
+		# to the original algorithm.
 		trigraphs[i][0] = key[indices[2]['i']][indices[0]['j']][indices[1]['k']]
 		trigraphs[i][1] = key[indices[0]['i']][indices[1]['j']][indices[2]['k']]
 		trigraphs[i][2] = key[indices[1]['i']][indices[2]['j']][indices[0]['k']]
@@ -232,7 +234,9 @@ def decrypt(cipherText, keyPhrase):
 		indices.append(indexOf(key, trigraphs[i][1]))
 		indices.append(indexOf(key, trigraphs[i][2]))
 		# Decryption proccess was found through trial and error
-		# based on the original algorithm to match it.
+		# based on the original algorithm to match it;
+		# this implementation has the j and k inverted when compared
+		# to the original algorithm.
 		trigraphs[i][0] = key[indices[1]['i']][indices[0]['j']][indices[2]['k']]
 		trigraphs[i][1] = key[indices[2]['i']][indices[1]['j']][indices[0]['k']]
 		trigraphs[i][2] = key[indices[0]['i']][indices[2]['j']][indices[1]['k']]

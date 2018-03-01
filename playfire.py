@@ -104,12 +104,14 @@ def generateTrigraphFromPlainText(plainText):
 		insert = 0
 		# If the character is the second or third position,
 		# make sure no letters are repeated or index is out of bounds.
-		if j == 1:
-			if p >= len(plainText) or trigraphs[i][j - 1] == plainText[p]:
-				insert = 1
+		if j == 1 and (p >= len(plainText) or trigraphs[i][j - 1] == plainText[p]):
+			insert = 1
 		if j == 2:
 			if p >= len(plainText):
-				insert = 2
+				if trigraphs[i][j - 1] == 'X':
+					insert = 2
+				else:
+					insert = 1
 			elif trigraphs[i][j - 1] == plainText[p]:
 				insert = 1
 		# If no additional characters are needed, simply add the next
@@ -118,7 +120,7 @@ def generateTrigraphFromPlainText(plainText):
 			trigraphs[i][j] = plainText[p]
 			p = p + 1
 		# Otherwise, depeding on the character padding needed,
-		# add the appropiate one.s
+		# add the appropiate one.
 		if insert == 1:
 			trigraphs[i][j] = 'X'
 		if insert == 2:

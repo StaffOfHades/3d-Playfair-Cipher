@@ -54,9 +54,17 @@ def generateKey(keyWord):
 						l = l + 1
 	return key
 
-def generateTrigraph(plainText):
+def generateTrigraph(text, type):
+	if type == "plain":
+		return generateTrigraphFromPlainText(text)
+	elif type == "cipher":
+		return generateTrigraphFromCipherText(text)
+	else:
+		return []
+
+def generateTrigraphFromPlainText(plainText):
 	size = math.ceil(len(plainText) / 3)
-	trigraphs = numpy.chararray((size,3,), unicode = True)
+	trigraphs = numpy.chararray((size,3), unicode = True)
 	trigraphs[:] = ''
 	# For use with the plainText as index.
 	p = 0
@@ -80,6 +88,18 @@ def generateTrigraph(plainText):
 				trigraphs[i][j] = 'Z'
 	return trigraphs
 
+def generateTrigraphFromCipherText(cipherText):
+	size = math.ceil(len(cipherText) / 3)
+	trigraphs = numpy.chararray((size,3), unicode = True)
+	trigraphs[:] = ''
+	# For use with the plainText as index.
+	p = 0
+	for i in range(size):
+		for j in range(3):
+			trigraphs[i][j] = cipherText[p]
+			p = p + 1
+	return trigraphs
+
 def indexOf(key, char):
 	i = j = k = 0
 	found = False
@@ -96,10 +116,18 @@ def indexOf(key, char):
 				j = 0
 	return {'i': i, 'j': j, 'k': k}
 
+def toString(array):
+	string = ""
+	for a in array:
+		for b in a:
+			for c in b:
+				string += c
+	return string
+
 def encrypt(plainText, keyPhrase):
 	keyWord = cleanPhrase(keyPhrase)
 	key = generateKey(keyWord)
-	trigraphs = generateTrigraph(plainText)
+	trigraphs = generateTrigraph(plainText, "plain")
 	for i in range(len(trigraphs)):
 		indices = []
 		indices.append(indexOf(key, trigraphs[i][0]))
@@ -110,12 +138,34 @@ def encrypt(plainText, keyPhrase):
 			if j == 0:
 				trigraphs[i][j] = key[indices[2]['i']][indices[0]['j']][indices[1]['k']]
 			if j == 1:
-				trigraphs[i][j] = key[indices[1]['i']][indices[2]['j']][indices[0]['k']]
-			if j == 2:
 				trigraphs[i][j] = key[indices[0]['i']][indices[1]['j']][indices[2]['k']]
-	return trigraphs
+			if j == 2:
+				trigraphs[i][j] = key[indices[1]['i']][indices[2]['j']][indices[0]['k']]
+	return toString(trigraphs)
+
+def decrypt(cipherText, keyPhrase):
+	keyWord = cleanPhrase(keyPhrase)
+	key = generateKey(keyWord)
+	trigraphs = generateTrigraph(cipherText, "cipher")
+	for i in range(len(trigraphs)):
+		indices = []
+		indices.append(indexOf(key, trigraphs[i][0]))
+		indices.append(indexOf(key, trigraphs[i][1]))
+		indices.append(indexOf(key, trigraphs[i][2]))
+		# i == floor, j == row, k == column.
+		for j in range(3):
+			if j == 0:
+				trigraphs[i][j] = key[indices[1]['i']][indices[0]['j']][indices[2]['k']]
+			if j == 1:
+				trigraphs[i][j] = key[indices[2]['i']][indices[1]['j']][indices[0]['k']]
+			if j == 2:
+				trigraphs[i][j] = key[indices[0]['i']][indices[2]['j']][indices[1]['k']]
+			
+	return toString(trigraphs)
 
 keyPhrase = "FRIENDS4V@TJ_201.C"
 plainText = "M.TECH@THESIS"
 cipherText = encrypt(plainText, keyPhrase)
 print(cipherText)
+decipheredText = decrypt(cipherText, keyPhrase)
+print(decipheredText)
